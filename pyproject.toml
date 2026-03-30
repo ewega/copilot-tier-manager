@@ -1,0 +1,8 @@
+[project]
+name = "copilot-tier-manager"
+version = "0.1.0"
+
+[tool.pytest.ini_options]
+markers = ["live: marks tests as requiring live API access (gh + az CLI auth)"]
+addopts = "-m 'not live'"
+pythonpath = ["."]

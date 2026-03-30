@@ -1,0 +1,49 @@
+# ⚠️  EXAMPLE CONFIGURATION — TEST ENVIRONMENT VALUES
+# Replace ALL values below with your production environment settings before use.
+# See README.md for setup instructions.
+#
+# Required changes:
+#   - entra_group_id: Your Entra ID security group object IDs (one per tier)
+#   - azure_tenant_id: Your Azure tenant ID
+#   - enterprise: Your GitHub Enterprise slug
+#   - emu_suffix: Your EMU username suffix (e.g. _yourcompany)
+#   - emu_domain: Your Entra ID domain (e.g. yourcompany.onmicrosoft.com)
+
+tiers:
+  basic-adopter:
+    min_pru: 0
+    max_pru: 299
+    entra_group_id: "04d6c6f1-5159-4c6a-b7a7-2235f59529dc"  # ← Replace with your group ID
+    copilot_plan: "business"
+    description: "New users / low adopters within included CB allowance"
+  growing-user:
+    min_pru: 300
+    max_pru: 699
+    entra_group_id: "cb0377cc-7a6c-4eba-b10c-2f0c985b7dfa"  # ← Replace with your group ID
+    copilot_plan: "business"
+    overage_enabled: true
+    description: "Active users exceeding CB allowance, managed via overage budget"
+  power-user:
+    min_pru: 700
+    max_pru: 999
+    entra_group_id: "da97742a-1f71-4008-8c16-db896798690b"  # ← Replace with your group ID
+    copilot_plan: "enterprise"
+    description: "High-usage users where CE is more cost-effective than CB+overages"
+  advanced-user:
+    min_pru: 1000
+    max_pru: null  # unlimited
+    entra_group_id: "26995f84-a2cd-4cbf-9c29-a8b1161d49cc"  # ← Replace with your group ID
+    copilot_plan: "enterprise"
+    overage_enabled: true
+    description: "Power users on CE with overages for full AI-assisted development"
+
+# Azure tenant for Graph API calls
+azure_tenant_id: "adde632d-1324-4966-b93f-b27d70cf0371"  # ← Replace with your tenant ID
+
+# GitHub Enterprise slug
+enterprise: "eldrick"  # ← Replace with your enterprise slug
+
+# EMU configuration
+emu_suffix: "_eldrick2"  # ← Replace with your EMU suffix
+emu_domain: "MngEnvMCAP712316.onmicrosoft.com"  # ← Replace with your domain
+emu_username_separator: "-"  # GitHub uses - but Entra UPN uses .

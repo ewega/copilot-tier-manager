@@ -1,0 +1,58 @@
+name: Copilot PRU Tier Sync
+
+on:
+  schedule:
+    # Monthly on the 2nd at 06:00 UTC (after PRU reset on 1st)
+    # NOTE: Scheduled runs default to dry-run mode. Set COPILOT_TIER_DRY_RUN=false
+    # in repository variables to enable automatic execution.
+    - cron: '0 6 2 * *'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Dry run (preview only, no changes)'
+        required: true
+        default: 'true'
+        type: choice
+        options:
+          - 'true'
+          - 'false'
+      enterprise:
+        description: 'GitHub Enterprise slug'
+        required: true
+        default: 'eldrick-test-emu'
+
+jobs:
+  sync-tiers:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run tier sync
+        run: |
+          DRY_RUN="${{ inputs.dry_run || env.COPILOT_TIER_DRY_RUN || 'true' }}"
+          if [ "$DRY_RUN" = "false" ]; then
+            python -m src.sync --enterprise "${{ inputs.enterprise || 'eldrick' }}" --execute
+          else
+            python -m src.sync --enterprise "${{ inputs.enterprise || 'eldrick' }}" --dry-run
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_ENTERPRISE_TOKEN }}
+          AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+          AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+          AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+          TEAMS_WEBHOOK_URL: ${{ secrets.TEAMS_WEBHOOK_URL }}
+
+      - name: Notify on failure
+        if: failure()
+        run: |
+          echo "::error::Copilot tier sync failed! Check the logs above."
+          # Could add Teams webhook notification here too
+        env:
+          TEAMS_WEBHOOK_URL: ${{ secrets.TEAMS_WEBHOOK_URL }}
