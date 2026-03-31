@@ -1,0 +1,52 @@
+# Example: How to use copilot-tier-manager in your repository
+#
+# Copy this file to your own repo at .github/workflows/copilot-tier-sync.yml
+# and configure the secrets and inputs below.
+#
+# Required secrets:
+#   GITHUB_TOKEN (or GH_ENTERPRISE_TOKEN) - PAT with read:enterprise, admin:enterprise, manage_billing:copilot
+#   AZURE_TENANT_ID - Your Azure tenant ID
+#   AZURE_CLIENT_ID - App registration client ID with GroupMember.ReadWrite.All
+#   AZURE_CLIENT_SECRET - App registration client secret
+#
+# Optional secrets:
+#   TEAMS_WEBHOOK_URL - Microsoft Teams incoming webhook for notifications
+
+name: Copilot PRU Tier Sync
+
+on:
+  schedule:
+    # Run monthly on the 2nd at 06:00 UTC (after PRU counters reset on the 1st)
+    - cron: '0 6 2 * *'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Preview changes only (no group modifications)'
+        required: true
+        default: 'true'
+        type: choice
+        options:
+          - 'true'
+          - 'false'
+
+jobs:
+  sync-copilot-tiers:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Sync Copilot user tiers
+        uses: ewega/copilot-tier-manager@v1
+        with:
+          enterprise: 'your-enterprise-slug'     # ← Replace with your enterprise
+          dry_run: ${{ inputs.dry_run || 'true' }}
+          emu_suffix: '_your-enterprise'          # ← Replace with your EMU suffix
+          emu_domain: 'your-company.onmicrosoft.com'  # ← Replace
+          teams_webhook_url: ${{ secrets.TEAMS_WEBHOOK_URL }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_ENTERPRISE_TOKEN }}
+          AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+          AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+          AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+
+      - name: Post summary as PR comment (optional)
+        if: always()
+        run: echo "Tier sync completed. Users moved: ${{ steps.sync.outputs.users_moved }}"

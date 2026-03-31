@@ -31,11 +31,16 @@ def run_sync(
     engine = TierEngine(config_path=config_path)
 
     # Load EMU config once up front (not per-user)
-    with open(config_path, encoding="utf-8") as f:
-        full_config = yaml.safe_load(f)
-    emu_suffix = full_config.get("emu_suffix", f"_{enterprise}")
-    emu_domain = full_config.get("emu_domain", "")
-    emu_separator = full_config.get("emu_username_separator", "-")
+    if os.path.exists(config_path):
+        with open(config_path, encoding="utf-8") as f:
+            full_config = yaml.safe_load(f) or {}
+    else:
+        full_config = {}
+
+    # Allow env var overrides (from GitHub Actions inputs)
+    emu_suffix = os.environ.get("INPUT_EMU_SUFFIX") or full_config.get("emu_suffix", f"_{enterprise}")
+    emu_domain = os.environ.get("INPUT_EMU_DOMAIN") or full_config.get("emu_domain", "")
+    emu_separator = os.environ.get("INPUT_EMU_SEPARATOR") or full_config.get("emu_username_separator", "-")
 
     result = SyncResult()
 
@@ -159,12 +164,26 @@ def _resolve_upn(github_username: str, emu_suffix: str, emu_domain: str, emu_sep
 
 def main():
     parser = argparse.ArgumentParser(description="Copilot PRU Tier Sync")
-    parser.add_argument("--enterprise", required=True, help="GitHub Enterprise slug")
+
+    # Support env var fallback for GitHub Actions
+    default_enterprise = os.environ.get("INPUT_ENTERPRISE", "")
+    parser.add_argument("--enterprise", default=default_enterprise, help="GitHub Enterprise slug")
     parser.add_argument("--org", help="Scope to a specific org (optional)")
     parser.add_argument("--config", default="config/tiers.yaml", help="Path to tiers config")
     parser.add_argument("--dry-run", action="store_true", default=True, help="Preview changes without applying (default: True)")
     parser.add_argument("--execute", action="store_true", help="Apply changes (overrides --dry-run)")
     args = parser.parse_args()
+
+    if not args.enterprise:
+        parser.error("--enterprise is required (or set INPUT_ENTERPRISE env var)")
+
+    config_path = args.config
+    if not os.path.exists(config_path):
+        if config_path == "config/tiers.yaml":
+            logger.info("No config file found, using default thresholds")
+            # Will use env vars for EMU config
+        else:
+            parser.error(f"Config file not found: {config_path}")
 
     dry_run = not args.execute
     result = run_sync(
@@ -177,6 +196,14 @@ def main():
     # Send notification summary
     summary = format_summary(result)
     print(summary)
+
+    # Write GitHub Actions outputs
+    github_output = os.environ.get("GITHUB_OUTPUT")
+    if github_output:
+        with open(github_output, "a") as f:
+            f.write(f"summary={summary.replace(chr(10), '%0A')}\n")
+            f.write(f"users_moved={len(result.moved_up) + len(result.moved_down) + len(result.new_users)}\n")
+            f.write(f"errors={len(result.errors)}\n")
 
     webhook_url = os.environ.get("TEAMS_WEBHOOK_URL", "")
     if webhook_url:

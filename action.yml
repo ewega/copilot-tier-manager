@@ -1,0 +1,79 @@
+name: "Copilot Tier Manager"
+description: >-
+  Automatically classify GitHub Copilot users into tiers based on
+  Premium Request usage and manage Entra ID group memberships for
+  cost-optimized license management.
+
+inputs:
+  enterprise:
+    description: "GitHub Enterprise slug"
+    required: true
+  dry_run:
+    description: "Preview changes without applying"
+    required: false
+    default: "true"
+  config_path:
+    description: >-
+      Path to tiers YAML config. If empty, uses default thresholds
+      with env vars for group IDs.
+    required: false
+    default: ""
+  emu_suffix:
+    description: "EMU username suffix (e.g. '_mycompany')"
+    required: false
+  emu_domain:
+    description: "Entra ID domain for UPN resolution"
+    required: false
+  emu_separator:
+    description: "Character replaced with '.' for UPN mapping"
+    required: false
+    default: "-"
+  teams_webhook_url:
+    description: "Microsoft Teams webhook URL for notifications"
+    required: false
+
+outputs:
+  summary:
+    description: "Markdown summary of the sync run"
+    value: ${{ steps.sync.outputs.summary }}
+  users_moved:
+    description: "Number of users moved between tiers"
+    value: ${{ steps.sync.outputs.users_moved }}
+  errors:
+    description: "Number of errors encountered"
+    value: ${{ steps.sync.outputs.errors }}
+
+branding:
+  icon: "users"
+  color: "green"
+
+runs:
+  using: "composite"
+  steps:
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.12"
+
+    - name: Install dependencies
+      shell: bash
+      run: pip install -r ${{ github.action_path }}/requirements.txt
+
+    - name: Run Copilot Tier Sync
+      id: sync
+      shell: bash
+      run: |
+        cd ${{ github.action_path }}
+        python -m src.sync \
+          --enterprise "${{ inputs.enterprise }}" \
+          --config "${{ inputs.config_path || 'config/tiers.yaml' }}" \
+          ${{ inputs.dry_run == 'false' && '--execute' || '--dry-run' }}
+      env:
+        GITHUB_TOKEN: ${{ env.GITHUB_TOKEN }}
+        AZURE_TENANT_ID: ${{ env.AZURE_TENANT_ID }}
+        AZURE_CLIENT_ID: ${{ env.AZURE_CLIENT_ID }}
+        AZURE_CLIENT_SECRET: ${{ env.AZURE_CLIENT_SECRET }}
+        INPUT_EMU_SUFFIX: ${{ inputs.emu_suffix }}
+        INPUT_EMU_DOMAIN: ${{ inputs.emu_domain }}
+        INPUT_EMU_SEPARATOR: ${{ inputs.emu_separator }}
+        TEAMS_WEBHOOK_URL: ${{ inputs.teams_webhook_url }}
