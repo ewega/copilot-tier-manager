@@ -17,15 +17,17 @@
 
 ### Prerequisites
 
-| Requirement | Details | Setup Guide |
-|-------------|---------|-------------|
-| **GitHub Enterprise Cloud (EMU)** | Enterprise Managed Users org with Copilot enabled | — |
-| **SCIM provisioning** | Configured between Microsoft Entra ID and the GitHub EMU Enterprise Application | [Azure / Entra ID Setup](setup/azure-entra-id-setup.md) |
-| **4 Entra ID security groups** | One per tier, assigned to the GitHub EMU Enterprise App in Entra ID | [Azure / Entra ID Setup](setup/azure-entra-id-setup.md) |
-| **4 GitHub Enterprise Teams** | Each linked to its Entra ID group via the SCIM `group_id` | [Azure / Entra ID Setup](setup/azure-entra-id-setup.md) |
-| **Cost Centres & Budgets** | Cost centres per tier with budget controls for overages | [Cost Centres & Budgets Setup](setup/github-cost-centers-and-budgets.md) |
-| **GitHub PAT** | Scopes: `read:enterprise`, `admin:enterprise`, `manage_billing:copilot` | — |
-| **Azure App Registration** | API permissions (Application): `GroupMember.ReadWrite.All`, `User.Read.All`, `Group.ReadWrite.All` | [Azure / Entra ID Setup](setup/azure-entra-id-setup.md) |
+| Requirement | Details |
+|-------------|---------|
+| **GitHub Enterprise Cloud (EMU)** | Enterprise Managed Users org with Copilot enabled |
+| **SCIM provisioning** | Configured between Microsoft Entra ID and GitHub |
+| **4 Entra ID security groups** | One per tier, assigned to the GitHub EMU Enterprise App |
+| **4 GitHub Enterprise Teams** | Each linked to its Entra ID group via SCIM `group_id` |
+| **Cost Centres & Budgets** | Cost centres per tier with budget controls |
+| **GitHub PAT** | Scopes: `read:enterprise`, `admin:enterprise`, `manage_billing:copilot` |
+| **Azure App Registration** | Permissions: `GroupMember.ReadWrite.All`, `User.Read.All`, `Group.ReadWrite.All` |
+
+> 📖 **Setup guides:** [Azure / Entra ID Setup](setup/azure-entra-id-setup.md) · [Cost Centres & Budgets](setup/github-cost-centers-and-budgets.md)
 
 ---
 
