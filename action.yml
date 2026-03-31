@@ -1,8 +1,5 @@
 name: "Copilot Tier Manager"
-description: >-
-  Automatically classify GitHub Copilot users into tiers based on
-  Premium Request usage and manage Entra ID group memberships for
-  cost-optimized license management.
+description: "Classify Copilot users into tiers by PRU usage and manage Entra ID groups for cost-optimized licensing."
 
 inputs:
   enterprise:
