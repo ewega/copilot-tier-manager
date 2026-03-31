@@ -36,29 +36,28 @@ flowchart LR
 
 ```mermaid
 flowchart LR
-    subgraph GitHub["GitHub"]
-        U["Copilot Usage Metrics<br>(PRUs per user)"]
-        CC["Cost Centres<br>& Budgets"]
-        T["Teams &<br>Organisations"]
+    subgraph GitHub["GitHub Enterprise Cloud"]
+        U["Copilot PRU<br>Usage Metrics"]
+        A["⚙️ GitHub Action<br>Copilot Tier Manager"]
+        T["Enterprise Teams<br>& Cost Centres"]
+        U --> A
+        A -->|"SCIM Sync"| T
     end
-    subgraph Auto["⚙️ Automation (Periodic)"]
-        E["Evaluate PRU Usage<br>→ Assign Tier"]
-    end
+
     subgraph Azure["Azure / Entra ID"]
         G["Entra ID<br>Security Groups<br>(4 Tiers)"]
         S["Azure Subscription<br>(Billing)"]
     end
-    U --> E
-    E --> G
-    G --> T
-    G --> CC
-    S --> CC
+
+    A -->|"Microsoft Graph API<br>Update Group Membership"| G
+    G -->|"SCIM Provisioning"| T
+    S --> T
 ```
 
-1. **Reads PRU usage** from the GitHub Enterprise API.
+1. **GitHub Action reads PRU usage** from the GitHub Enterprise API.
 2. **Classifies each user** into a tier based on configurable thresholds.
-3. **Moves users between Entra ID security groups** via the Microsoft Graph API.
-4. **SCIM syncs** group membership changes to GitHub Enterprise Teams automatically.
+3. **GitHub Action moves users between Entra ID security groups** via the Microsoft Graph API.
+4. **SCIM provisioning syncs** group membership changes back to GitHub Enterprise Teams automatically.
 5. **Copilot seats follow team membership** — users inherit the correct license plan.
 
 ---
