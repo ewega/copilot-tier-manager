@@ -1,5 +1,42 @@
 # Setting Up Azure / Entra ID
 
+## Quick Setup
+
+Choose your preferred setup method:
+
+### Option A: Automated Script
+
+Run the provided script to set up everything automatically:
+
+**Prerequisites:** `az` CLI authenticated with admin permissions, `gh` CLI authenticated with enterprise scopes, `jq` installed.
+
+```bash
+bash setup/setup-azure.sh \
+    --enterprise <your-enterprise-slug> \
+    --emu-app-id <github-emu-oidc-app-id> \
+    --domain <your-company.onmicrosoft.com>
+```
+
+### Option B: AI-Assisted Setup (Copilot CLI / Agent)
+
+Feed the step-by-step instructions to an AI agent (e.g. GitHub Copilot CLI) to walk through the setup interactively:
+
+**Prerequisites:** Agent must have access to `az` CLI (authenticated) and `gh` CLI (authenticated with enterprise scopes).
+
+```bash
+# Copy the prompt file and paste it into your AI agent
+cat setup/prompts/azure-setup-prompt.md
+```
+
+Or with Copilot CLI:
+```bash
+gh copilot suggest -t shell "$(cat setup/prompts/azure-setup-prompt.md)"
+```
+
+> 📖 For a detailed manual walkthrough, see the [step-by-step guide](#step-by-step-guide) below.
+
+---
+
 ## Overview
 
 The **Copilot Tier Manager** GitHub Action authenticates to [Microsoft Graph API](https://learn.microsoft.com/en-us/graph/overview) to manage Entra ID security group memberships. Users are classified into tiers based on their Premium Request Unit (PRU) consumption, and the action moves them between four Entra ID security groups accordingly. These groups are synced to GitHub Enterprise via SCIM provisioning, where they map to Enterprise Teams that control Copilot license assignments.

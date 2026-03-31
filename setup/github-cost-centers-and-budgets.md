@@ -1,5 +1,29 @@
 # Setting Up GitHub Cost Centers & Budgets
 
+## Quick Setup
+
+Choose your preferred setup method:
+
+### Option A: Automated Script
+
+```bash
+bash setup/setup-cost-centers.sh <your-enterprise-slug>
+```
+
+**Prerequisites:** `gh` CLI authenticated with `admin:enterprise` and `manage_billing:enterprise` scopes.
+
+### Option B: AI-Assisted Setup (Copilot CLI / Agent)
+
+**Prerequisites:** Agent must have access to `gh` CLI authenticated with enterprise scopes.
+
+```bash
+cat setup/prompts/cost-centers-setup-prompt.md
+```
+
+> 📖 For a detailed manual walkthrough, see the [step-by-step guide](#step-by-step-guide) below.
+
+---
+
 > Configure cost centers and budgets to track and control Copilot spending across your 4 tiers.
 
 ---
