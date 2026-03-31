@@ -20,6 +20,12 @@ bash setup/setup-cost-centers.sh <your-enterprise-slug>
 cat setup/prompts/cost-centers-setup-prompt.md
 ```
 
+Or start a [Copilot CLI](https://docs.github.com/en/copilot/how-tos/copilot-cli/cli-getting-started) session and paste the prompt:
+```bash
+copilot
+# Then paste the contents of setup/prompts/cost-centers-setup-prompt.md
+```
+
 > 📖 For a detailed manual walkthrough, see the [step-by-step guide](#step-by-step-guide) below.
 
 ---

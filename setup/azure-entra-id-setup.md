@@ -28,9 +28,10 @@ Feed the step-by-step instructions to an AI agent (e.g. GitHub Copilot CLI) to w
 cat setup/prompts/azure-setup-prompt.md
 ```
 
-Or with Copilot CLI:
+Or start a [Copilot CLI](https://docs.github.com/en/copilot/how-tos/copilot-cli/cli-getting-started) session and paste the prompt:
 ```bash
-gh copilot suggest -t shell "$(cat setup/prompts/azure-setup-prompt.md)"
+copilot
+# Then paste the contents of setup/prompts/azure-setup-prompt.md
 ```
 
 > 📖 For a detailed manual walkthrough, see the [step-by-step guide](#step-by-step-guide) below.
