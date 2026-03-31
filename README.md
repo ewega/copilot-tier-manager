@@ -35,23 +35,33 @@ flowchart LR
 ## How It Works
 
 ```mermaid
-flowchart LR
-    subgraph GitHub["GitHub Enterprise Cloud"]
-        U["Copilot PRU<br>Usage Metrics"]
-        A["⚙️ GitHub Action<br>Copilot Tier Manager"]
-        T["Enterprise Teams<br>& Cost Centres"]
-        U --> A
-        A -->|"SCIM Sync"| T
-    end
-
+flowchart TB
     subgraph Azure["Azure / Entra ID"]
         G["Entra ID<br>Security Groups<br>(4 Tiers)"]
         S["Azure Subscription<br>(Billing)"]
     end
 
-    A -->|"Microsoft Graph API<br>Update Group Membership"| G
+    subgraph GitHub["GitHub Enterprise Cloud"]
+        subgraph Action["GitHub Action"]
+            C["📅 Cron Job<br>(Monthly Trigger)"]
+            A["⚙️ Copilot Tier Manager"]
+            C -->|"Trigger"| A
+        end
+
+        U["Copilot PRU<br>Usage Metrics"]
+        T["Enterprise Tier<br>(4 Tiers)"]
+        CC["Cost Centers<br>(Multiple)"]
+        B["Budgets<br>(Multiple)"]
+
+        A -->|"Pull PRU Metrics"| U
+        T --- CC
+        CC --- B
+    end
+
+    Azure --> GitHub
     G -->|"SCIM Provisioning"| T
-    S --> T
+    S --> B
+    A -.->|"Microsoft Graph API<br>Update Group Membership"| G
 ```
 
 1. **GitHub Action reads PRU usage** from the GitHub Enterprise API.
